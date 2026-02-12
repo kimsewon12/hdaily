@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>HDaily</title>
+</head>
+<body>
+    <h1>HDaily 테스트 페이지</h1>
+
+    <button onclick="callServer()">서버 호출</button>
+
+    <p id="result"></p>
+
+    <script>
+        function callServer() {
+            fetch("/hello")
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById("result").innerText = data;
+                });
+        }
+    </script>
+</body>
+</html>
