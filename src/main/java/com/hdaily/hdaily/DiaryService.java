@@ -3,31 +3,40 @@ package com.hdaily.hdaily;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class DiaryService {
-	private List<DiaryResponse> diaries = new ArrayList<>();
 	
-	public DiaryService() {
-		diaries.add(new DiaryResponse("2026-01-28","오늘은 자바를 공부했다."));
-		diaries.add(new DiaryResponse("2026-01-29","오늘은 Spring Boot를 공부했다."));
-	}
+	private final DiaryRepository diaryRepository;
 	
-	public List<DiaryResponse> getAllDiaries(){
-		return diaries;
-	}
-	
-	public DiaryResponse getDiaryByDate(String targetDate) {
-		for(DiaryResponse diary : diaries) {
-			if(diary.getDate().equals(targetDate)) {
-				return diary;
-			}
-		}
-		return null;
+	public DiaryService(DiaryRepository diaryRepository) {
+		this.diaryRepository = diaryRepository;
 	}
 	
 	public void createDiary(DiaryRequest request) {
-		diaries.add(new DiaryResponse(request.getDate(),request.getContent()));
+		Diary newDiary = new Diary(request.getDate(),request.getContent());
+		
+		diaryRepository.save(newDiary);
 	}
+	
+	public List<DiaryResponse> getAllDiaries(){
+		List<Diary> diaries = diaryRepository.findAll();
+		
+		List<DiaryResponse> responses = new ArrayList<>();
+		for(Diary diary: diaries) {
+			responses.add(new DiaryResponse(diary.getDate(),diary.getContent()));
+		}
+		return responses;
+	}
+	
+	public DiaryResponse getDiaryByDate(String targetDate) {
+		
+		Diary diary = diaryRepository.findByDate(targetDate)
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 날짜의 일기가 없습니다."));
+		return new DiaryResponse(diary.getDate(),diary.getContent());
+	}
+	
 }
