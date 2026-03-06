@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class DiaryService {
@@ -39,4 +40,18 @@ public class DiaryService {
 		return new DiaryResponse(diary.getDate(),diary.getContent());
 	}
 	
+	@Transactional
+	public void updateDiary(String targetDate, DiaryRequest request) {
+		Diary diary = diaryRepository.findByDate(targetDate)
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,"수정할 일기가 없습니다."));
+		
+		diary.updateContent(request.getContent());
+	}
+	
+	@Transactional
+	public void deleteDiary(String targetDate) {
+		Diary diary = diaryRepository.findByDate(targetDate)
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,"삭제할 일기가 없습니다."));
+		diaryRepository.delete(diary);
+	}
 }

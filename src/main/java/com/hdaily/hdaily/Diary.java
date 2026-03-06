@@ -25,4 +25,8 @@ public class Diary {
 	public String getDate() { return date; }
 	public String getContent() { return content; }
 	
+	public void updateContent (String newContent) {
+		this.content = newContent;
+	}
+	
 }
